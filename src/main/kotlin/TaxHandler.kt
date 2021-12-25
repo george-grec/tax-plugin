@@ -29,6 +29,8 @@ class TaxHandler(private var econ: Economy) {
                     this.collectTaxes()
 
                     player.sendMessage("Success!")
+                } else {
+                    player.sendMessage("Insufficient permissions!")
                 }
             }
             "setPercentage" -> {
@@ -47,7 +49,18 @@ class TaxHandler(private var econ: Economy) {
                         percentage = tempPercentage
                         player.sendMessage("Success! Tax rate is now $percentage%")
                     }
+                } else {
+                    player.sendMessage("Insufficient permissions!")
                 }
+            }
+            "help" -> {
+                player.sendMessage("Available commands:")
+                player.sendMessage("/tax collect | Collect taxes now.")
+                player.sendMessage("/tax setPercentage [value] | Sets the tax rate to the given value. Only values between 0 and 20 will be accepted.")
+            }
+            else -> {
+                player.sendMessage("Unknown tax command! See '/tax help' for all commands")
+                return false
             }
         }
 
@@ -73,5 +86,8 @@ class TaxHandler(private var econ: Economy) {
         }
 
         econ.depositPlayer(receiverPlayer, taxes)
+
+        Bukkit.getLogger().info("Completed tax transaction!")
+        Bukkit.getLogger().info("Transferred $taxes to ${receiverPlayer?.player?.name}")
     }
 }
