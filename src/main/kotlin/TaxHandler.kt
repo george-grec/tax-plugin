@@ -7,6 +7,7 @@ import org.bukkit.entity.Player
 
 class TaxHandler(private var econ: Economy) {
     private var percentage = 10.0
+    private var treasury = 0.0
 
     fun handleCommand(sender: CommandSender, args: Array<out String>): Boolean {
         if (sender !is Player) {
@@ -22,13 +23,9 @@ class TaxHandler(private var econ: Economy) {
         when (args[0]) {
             "collect" -> {
                 if (player.hasPermission("tax.admin")) {
-                    if (args.size < 1) {
-                        return false
-                    }
-
                     this.collectTaxes()
 
-                    player.sendMessage("Success!")
+                    player.sendMessage("Transferred taxes!")
                 } else {
                     player.sendMessage("Insufficient permissions!")
                 }
@@ -71,13 +68,18 @@ class TaxHandler(private var econ: Economy) {
         val offlinePlayers = Bukkit.getOfflinePlayers()
 
         var taxes = 0.0
-        var receiverPlayer: Player? = null
+        var receivingPlayer: Player? = null
 
         for (offlinePlayer in offlinePlayers) {
             if(offlinePlayer.player!!.hasPermission("tax.collect")) {
-                receiverPlayer = offlinePlayer.player
+                receivingPlayer = offlinePlayer.player
             } else {
                 val balance = econ.getBalance(offlinePlayer)
+
+                if (balance < 0) {
+                    continue
+                }
+
                 val taxAmount = balance * percentage / 100
 
                 econ.withdrawPlayer(offlinePlayer, taxAmount)
@@ -85,9 +87,19 @@ class TaxHandler(private var econ: Economy) {
             }
         }
 
-        econ.depositPlayer(receiverPlayer, taxes)
+        if (receivingPlayer != null) {
+            econ.depositPlayer(receivingPlayer, taxes)
 
-        Bukkit.getLogger().info("Completed tax transaction!")
-        Bukkit.getLogger().info("Transferred $taxes to ${receiverPlayer?.player?.name}")
+            Bukkit.getLogger().info("Completed tax transaction!")
+            Bukkit.getLogger().info("Transferred $taxes to ${receivingPlayer.player?.name}")
+            if (treasury > 0) {
+                econ.depositPlayer(receivingPlayer, treasury)
+                Bukkit.getLogger().info("Transferred deposited taxes in the amount of $treasury to ${receivingPlayer.player?.name}")
+                treasury = 0.0
+            }
+        } else {
+            treasury += taxes
+            Bukkit.getLogger().info("No receiving player available! Deposited taxes in treasury.")
+        }
     }
 }
