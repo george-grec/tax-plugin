@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 class TaxHandler(private var econ: Economy) {
-    private var percentage = 10
+    private var percentage = 10.0
 
     fun handleCommand(sender: CommandSender, args: Array<out String>): Boolean {
         if (sender !is Player) {
@@ -22,8 +22,7 @@ class TaxHandler(private var econ: Economy) {
         when (args[0]) {
             "collect" -> {
                 if (player.hasPermission("tax.admin")) {
-                    // usage: /tax collect 10 [playername]
-                    if (args.size < 2) {
+                    if (args.size < 1) {
                         return false
                     }
 
@@ -38,7 +37,15 @@ class TaxHandler(private var econ: Economy) {
                         return false
                     }
 
-                    percentage = args[2].toInt()
+                    val tempPercentage = args[1].toDouble()
+                    if (tempPercentage > 20) {
+                        player.sendMessage("This tax rate is above the limit! You must not exceed 20%.")
+                    } else if (tempPercentage < 0) {
+                        player.sendMessage("This tax rate is below zero! Only tax rates between 0 and 20 are valid.")
+                    } else {
+                        percentage = tempPercentage
+                        player.sendMessage("Success! Tax rate is now $percentage%")
+                    }
                 }
             }
         }
