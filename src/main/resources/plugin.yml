@@ -1,0 +1,12 @@
+name: tax-plugin
+version: 1.0.0
+description: Gogi's Tax Plugin
+main: main.Loader
+
+commands:
+  hallo:
+    description: Sag yo
+    usage: /<command>
+  tax:
+    description: collect taxes
+    usage: /<command>
