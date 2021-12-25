@@ -33,7 +33,8 @@ class TaxHandler(private var econ: Economy) {
             }
             "setPercentage" -> {
                 if (player.hasPermission("tax.collect")) {
-                    if (args.size < 2) {
+                    if (args.size < 2 || args[1].toDoubleOrNull() == null) {
+                        player.sendMessage("Provide a number for the tax rate argument!")
                         return false
                     }
 
