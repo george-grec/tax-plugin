@@ -71,7 +71,7 @@ class TaxHandler(private var econ: Economy) {
         var receivingPlayer: Player? = null
 
         for (offlinePlayer in offlinePlayers) {
-            if(offlinePlayer.player!!.hasPermission("tax.collect")) {
+            if(offlinePlayer.player?.hasPermission("tax.collect") == true) {
                 receivingPlayer = offlinePlayer.player
             } else {
                 val balance = econ.getBalance(offlinePlayer)
